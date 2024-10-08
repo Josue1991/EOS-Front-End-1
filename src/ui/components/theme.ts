@@ -5,12 +5,9 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#dc004e', // Color azul personalizado
+      main: '#000', // Color azul personalizado
     },
     secondary: {
-      main: '#000', // Color rojo personalizado
-    },
-    error: {
       main: '#dc004e', // Color rojo personalizado
     },
   },

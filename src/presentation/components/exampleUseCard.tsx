@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
-import { User } from '../../domain/1.entities/example';
+import { User } from '../../domain/entities/example';
 
 interface UserCardProps {
   user: User;
@@ -16,7 +16,7 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
         <Typography color="textSecondary">@{user.username}</Typography>
         <Typography>{user.email}</Typography>
         <Typography>{user.phone}</Typography>
-        <Typography color=''>{user.website}</Typography>
+        <Typography>{user.website}</Typography>
       </CardContent>
     </Card>
   );

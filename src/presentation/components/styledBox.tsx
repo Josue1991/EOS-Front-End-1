@@ -1,12 +1,14 @@
-import React from "react";
-import { useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
+// src/presentation/components/StyledBox.tsx
+
+import React from 'react';
+import { useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 
 interface StyledBoxProps {
   children: React.ReactNode;
 }
 
-const StyledBox = ({ children }: StyledBoxProps) => {
+const StyledBox: React.FC<StyledBoxProps> = ({ children }) => {
   const theme = useTheme();
 
   return (

@@ -1,16 +1,15 @@
 // src/presentation/screens/UserListScreen.tsx
 
 import React, { useEffect, useState } from 'react';
-import { UserService } from '../../application/5.services/exampleServices';
+import { UserService } from '../../application/services/exampleServices';
 import UserCard from '../components/exampleUseCard';
 import { Container, Typography } from '@mui/material';
-import { User } from '../../domain/1.entities/example';
+import { User } from '../../domain/entities/example';
 import MyButton from '../components/myButton';
-import IconComponent from '../components/Icon';
 
 const userService = new UserService();
 
-const UserListScreen = () => {
+const UserListScreen: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -39,14 +38,8 @@ const UserListScreen = () => {
     );
   }
 
-  const handleClick = () => {
-    console.log('Icono clickeado');
-  };
-
   return (
     <Container>
-      <IconComponent iconName="FaBeer" onClick={handleClick} size={24} color="blue" />
-      <IconComponent iconName="MdHome" size={30} color="primary" />
       <Typography variant="h4" style={{ margin: '20px 0' }}>
         Lista de Usuarios
       </Typography>
@@ -56,9 +49,6 @@ const UserListScreen = () => {
       {users.map((user) => (
         <UserCard key={user.id} user={user} />
       ))}
-      <div>
-
-      </div>
     </Container>
   );
 };

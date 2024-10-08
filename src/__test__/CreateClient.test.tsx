@@ -1,72 +1,81 @@
-// CreateClient.test.tsx
+// src/presentation/screens/CreateClient.test.tsx
+
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';  // Para añadir matchers como `toBeInTheDocument`
 import CreateClient from '../presentation/screens/CreateClient';
-import { createPost } from '../services/serviceClient'; // Importa la función para mockear
+import { FacturaServices } from '../application/services/facturaServices';
+import SnackbarErrorMessage from '../presentation/components/MessageError';
 
-// Mock de createPost para simular la API
-jest.mock('../services/serviceClient', () => ({
-    createPost: jest.fn()
-}));
+// Mock de FacturaServices
+jest.mock('../../application/services/facturaServices', () => {
+    return {
+        FacturaServices: jest.fn().mockImplementation(() => ({
+            postFactura: jest.fn(),
+        })),
+    };
+});
 
 describe('CreateClient Component', () => {
-    it('renders without crashing', () => {
-        render(<CreateClient />);
+    let mockPostFactura: jest.Mock;
 
-        // Verificar que se renderiza el título correctamente
-        const title = screen.getByText(/Crear Factura/i);
-        expect(title).toBeInTheDocument();
+    beforeEach(() => {
+        // Obtenemos la implementación simulada de FacturaServices
+        const facturaService = new FacturaServices();
+        mockPostFactura = facturaService.postFactura;
+
+        render(<CreateClient />);
     });
 
-    it('shows an error message when submitting an empty form', () => {
-        render(<CreateClient />);
-
-        // Simular el clic en el botón de "Pagar"
-        const pagarButton = screen.getByText(/Pagar/i);
-        fireEvent.click(pagarButton);
-
-        // Verificar que se muestra el mensaje de error
-        const errorMessage = screen.getByText(/Por favor ingrese un valor antes de enviar/i);
-        expect(errorMessage).toBeInTheDocument();
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
-    it('submits form with valid input', async () => {
-        // Mockear la respuesta de la función createPost
-        (createPost as jest.Mock).mockResolvedValue({ id: 1, total: "100" });
-
-        render(<CreateClient />);
-
-        // Encontrar el campo de texto e ingresar un valor
-        const inputField = screen.getByPlaceholderText(/Ingrese el valor de la factura/i);
-        fireEvent.change(inputField, { target: { value: '100' } });
-
-        // Simular clic en el botón de pagar
-        const pagarButton = screen.getByText(/Pagar/i);
-        fireEvent.click(pagarButton);
-
-        // Verificar que createPost fue llamada con el valor correcto
-        expect(createPost).toHaveBeenCalledWith({ total: "100" });
-
-        // Verificar que se muestra el mensaje de éxito en el Snackbar
-        const snackbarMessage = await screen.findByText(/Valor Facturado: \$100/i);
-        expect(snackbarMessage).toBeInTheDocument();
+    test('should render the CreateClient component', () => {
+        expect(screen.getByText(/Crear Factura/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Valor Factura/i)).toBeInTheDocument();
     });
 
-    it('displays error for invalid input', async () => {
-        render(<CreateClient />);
-    
-        // Encontrar el campo de texto e ingresar un valor no numérico
-        const inputField = screen.getByPlaceholderText(/Ingrese el valor de la factura/i);
-        fireEvent.change(inputField, { target: { value: 'abc' } });
-    
-        // Simular clic en el botón de pagar
-        const pagarButton = screen.getByText(/Pagar/i);
-        fireEvent.click(pagarButton);
+    test('should display error message for non-numeric input', () => {
+        const input = screen.getByLabelText(/Valor Factura/i);
         
-        // Usar findByText que espera a que el mensaje de error aparezca
-        const errorMessage = await screen.findByText(/Por favor ingrese un valor antes de enviar/i);
-        expect(errorMessage).toBeInTheDocument();
+        fireEvent.change(input, { target: { value: 'abc' } });
+
+        expect(screen.getByText(/Por favor ingrese un valor válido./i)).toBeInTheDocument();
     });
-    
+
+    test('should call postFactura with correct value', async () => {
+        const input = screen.getByLabelText(/Valor Factura/i);
+        
+        // Simulamos un valor válido
+        fireEvent.change(input, { target: { value: '100' } });
+        
+        // Simulamos hacer clic en el botón de "Pagar"
+        const button = screen.getByRole('button', { name: /Pagar/i });
+        fireEvent.click(button);
+        
+        expect(mockPostFactura).toHaveBeenCalledWith(expect.objectContaining({ invoiceValue: 100 }));
+    });
+
+    test('should show snackbar with error message when postFactura fails', async () => {
+        mockPostFactura.mockRejectedValueOnce(new Error('Error en el valor facturado'));
+        const input = screen.getByLabelText(/Valor Factura/i);
+        
+        fireEvent.change(input, { target: { value: '100' } });
+        
+        const button = screen.getByRole('button', { name: /Pagar/i });
+        fireEvent.click(button);
+        
+        expect(await screen.findByText(/Error en el valor facturado/i)).toBeInTheDocument();
+    });
+
+    test('should show snackbar with success message when postFactura is successful', async () => {
+        const input = screen.getByLabelText(/Valor Factura/i);
+        
+        fireEvent.change(input, { target: { value: '100' } });
+        
+        const button = screen.getByRole('button', { name: /Pagar/i });
+        fireEvent.click(button);
+        
+        expect(await screen.findByText(/Factura emitida con valor: 100/i)).toBeInTheDocument();
+    });
 });
