@@ -1,0 +1,39 @@
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Altura del 100% de la ventana */
+}
+
+.container {
+    width: 100%; /* Ancho del contenedor */
+}
+.espacio{
+    height: 2em;
+}
+.titulo{
+    height: 4em;
+}
+.fondo{
+    background-color: grey;
+}
+
+/* Archivo CSS */
+
+@media (max-width: 600px) {
+    body {
+        background-color: #825de6; /* Pantallas pequeñas */
+    }
+}
+
+@media (min-width: 601px) and (max-width: 960px) {
+    body {
+        background-color: #b5e740; /* Pantallas medianas */
+    }
+}
+
+@media (min-width: 961px) {
+    body {
+        background-color: #f3efef; /* Pantallas grandes */
+    }
+}
